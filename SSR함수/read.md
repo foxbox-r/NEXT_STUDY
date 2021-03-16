@@ -33,24 +33,29 @@ EX) 로그인유무검사,게시글 먼저 가져오기 등..
 ```
 // pages/user/[id].js
 
-const User = ({user}) => {
+import React from 'react';
+import GetApi from "../components/GetApi"
+import {API_REQUEST} from "../reducers/api"
+import {wrapper} from "../store";
+import { END } from 'redux-saga'
+
+const index = () => {
+
     return (
         <>
-            <h1>{user.name}<h1>
+            <h1>main</h1>
         </>
     )
 }
 
-export async function getServerSideProps(ctx){ //   다이나믹 라우팅은 ctx객체에 params이라는 키가 들어 있음
+export const getServerSideProps = wrapper.getServerSideProps(async ({store})=>{
+    
+    if (!store.getState().placeholderData) {
+        store.dispatch({type:API_REQUEST});
+        store.dispatch(END)
+      }
+    await store.sagaTask.toPromise()
+})
 
-    const id = ctx.params.id;
-
-    const user = await axios.get(`backhost:80/user/${id}`);
-
-    return {
-        props:{
-            user
-        }
-    }
-}
+export default index;
 ```
